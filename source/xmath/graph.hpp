@@ -4,77 +4,65 @@
 
 namespace xmath
 {
-	template<typename _Node,typename _Link = std::nullptr_t>
+	template<typename T>
 	class graph
 	{
 	public:
-		class node;
-		class link;
+		class traversal;
+		struct node;
+
 		using path = std::list<graph::node*>;
+		using link = std::pair<node*,node*>;
 		
 	protected:
 		std::vector<node*> _nodes;
-		std::vector<link*> _links;
 
 	public:
-		class link
+		struct node
 		{
 			friend class graph;
-			friend class node;
-		protected:
-			node* _from, *_to;
-			_Link _weight;
-		public:
-			link()
-			{
-				_from = _to = nullptr;
-				_weight = ONE(_Link);
-			}
-
-			link(_Link weight) : link()
-			{
-				_weight = weight;
-			}
-
-			link(node* from,node* to) : link()
-			{
-				_from = from;
-				_to = to;
-			}
-
-			// link(node* from,node* to,_Link weight) : link(from,to) , link(weight) { }
-
-			node* from() const { return _from; }
-			node* to() const { return _to; }
-
-			void connect(node* from, node* to)
-			{
-				from->link_to(to);
-			}
-		};
-
-		class node
-		{
-			friend class graph; 
-			friend class link;
+			friend class traversal;
 
 		protected:
-			std::vector<link*> _links;
-			_Node _data;
-
+			std::vector<node*> _links;
+			T _data;
+		
 		public:
 			node() { }
 
-			node(_Node data)
+			node(T data) : _data(data) { }
+
+			node(const node& other) : _data(other._data)
 			{
-				_data = data;
+				for(node* nd : other._links)
+					_links.push_back(nd);
 			}
 
-			_Node get_data() const { return _data; }
+			node& operator=(T data) { _data = data; return *this; }
+			node& operator=(const node& other) { _data = n._data; return *this; }
+			
+			~node() { }
+		}
 
-			void set_data(_Node data) { _data = data; }
+		class traversal : std::iterator<input_iterator_tag, T>
+		{
+			friend class graph;
 
-			link* link_to(node* nde)
+		protected:
+			node* _node;
+			std::vector<node*>::iterator _iterator;
+
+			traversal(node* n) : _node(n) { }
+		public:
+			traversal() : _node(nullptr) { }
+
+			traversal(const traversal& other) : _node(other._node) { }
+
+			T get_data() const { return _data; }
+
+			void set_data(T data) { _node->_data = data; }
+
+			void link_to(node* to)
 			{
 				link* lnk = new link(this,nde);
 
@@ -138,6 +126,12 @@ namespace xmath
 				
 				_links.clear();
 			}
+
+			const std::vector<node*>& neighbours() const { return _node->_links; }
+			std::vector<node*>& neighbours() { return _node->_links; }
+
+			const T& operator *() const { return _node->_data; }
+			T& operator *() { return _node->_data; }
 		};
 
 		void add(node* new_node)
@@ -145,7 +139,7 @@ namespace xmath
 			_nodes.push_back(new_node);
 		}
 
-		node* push(_Node data)
+		node* push(T data)
 		{
 			node* new_node = new node(data);
 
@@ -155,10 +149,10 @@ namespace xmath
 		}
 
 		const std::vector<node*>& nodes() const { return _nodes; }
-		const std::vector<link*>& links() const { return _links; }
+		const std::vector<link>& links() const { return _links; }
 		
 		std::vector<node*>& nodes() { return _nodes; }
-		std::vector<link*>& links() { return _links; }
+		std::vector<link>& links() { return _links; }
 	};
 
 }

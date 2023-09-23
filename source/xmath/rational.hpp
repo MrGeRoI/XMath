@@ -30,14 +30,35 @@ namespace xmath
 			_denominator = abs(denominator);
 		}
 
+		rational(const rational& ratio)
+		{
+			_numerator = ratio._numerator;
+			_denominator = ratio._denominator;
+		}
+
 		template<typename R = number>
 		R value() const
 		{
 			return (R) _numerator / (R) _denominator;
 		}
 
+		rational operator*(const rational& ratio) const
+		{
+			
+		}
+
+		rational& operator=(const rational& ratio)
+		{
+			_numerator = ratio._numerator;
+			_denominator = ratio._denominator;
+
+			return *this;
+		}
+
+		~rational() { }
+
 		template<typename T>
-		friend math::rational<T> abs(math::rational<T> rat);
+		friend rational<T> abs(rational<T> rat);
 	};
 }
 

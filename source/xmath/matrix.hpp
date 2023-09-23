@@ -17,23 +17,39 @@ namespace xmath
 		virtual size_t columns() const = 0;
 	};
 
-	template<typename T = number>
+	template<typename _Scalar = number>
 	class dynamic_matrix : abstract_matrix
 	{
 	private:
-		T** _value;
+		_Scalar** _value;
 		size_t _rows,_columns;
 	
 	public:
+		dynamic_matrix(size_t rows,size_t columns)
+		{
+			_rows = rows;
+			_columns = columns;
+
+			_value = new _Scalar[columns][];
+			
+			for(int i = 0;i < rows;i++)
+			{
+				_value[i] = new _Scalar[columns];
+
+				for(int j = 0;j < columns;j++)
+					_value[i][j] = (i == j) ? ONE(_Scalar) : ZERO(_Scalar);
+			}
+		}
+
 		virtual size_t rows() const { return _rows; };
 		virtual size_t columns() const { return _columns; };
 	};
 
-	template<size_t _Rows, size_t _Columns, typename T = number>
-	class matrix
+	template<size_t _Rows, size_t _Columns, typename _Scalar = number>
+	class matrix : abstract_matrix
 	{
 	private:
-		T _value[_Rows][_Columns];
+		_Scalar _value[_Rows][_Columns];
 	public:
 		matrix()
 		{
@@ -42,7 +58,7 @@ namespace xmath
 			
 			for(int i = 0;i < _Rows;i++)
 				for(int j = 0;j < _Columns;j++)
-					_value[i][j] = ZERO(T);
+					_value[i][j] = ZERO(_Scalar);
 		}
 
 		matrix(vector<_Rows>& vec)
@@ -54,15 +70,15 @@ namespace xmath
 				_value[i][0] = vec.get_element(i);
 		}
 
-		matrix(T* data)
+		matrix(_Scalar* data)
 		{
 			
 		}
 
-		size_t rows() const { return _Rows; }
-		size_t columns() const { return _Columns; }
+		virtual size_t rows() const { return _Rows; }
+		virtual size_t columns() const { return _Columns; }
 
-		vector<_Columns,T> row(int row) const
+		vector<_Columns,_Scalar> row(int row) const
 		{
 			vector<_Columns> result;
 
@@ -72,7 +88,7 @@ namespace xmath
 			return result;
 		}
 
-		vector<_Rows,T> column(int col) const
+		vector<_Rows,_Scalar> column(int col) const
 		{
 			vector<_Rows> result;
 
@@ -82,15 +98,15 @@ namespace xmath
 			return result;
 		}
 
-		T get_element(int row,int col) const { return _value[row,col]; }
-		void set_element(int row,int col,T value) { _value[row,col] = value; }
+		_Scalar get_element(int row,int col) const { return _value[row,col]; }
+		void set_element(int row,int col,_Scalar value) { _value[row,col] = value; }
 
-		T determinant() const
+		_Scalar determinant() const
 		{
 			if(_Rows != _Columns)
 				throw non_square_matrix();
 			
-			return ZERO(T);
+			return ZERO(_Scalar);
 		}
 
 		void transponise()
@@ -162,8 +178,8 @@ namespace xmath
 				_value[i,i]++;
 		}
 
-		T operator[] (int col) const { return column(col); }
-		T operator*() const
+		_Scalar operator[] (int col) const { return column(col); }
+		_Scalar operator*() const
 		{
 			if(_Rows == _Columns)
 				return determinant();

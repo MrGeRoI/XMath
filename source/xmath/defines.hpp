@@ -24,12 +24,12 @@ namespace xmath
 	using integer = int;
 	using default_typename = std::nullptr_t;
 
-	template<typename _Data,typename _Weight>
+	template<typename T>
 	class graph;
 
-	template<size_t _Rows, size_t _Columns, typename T>
+	template<size_t _Rows, size_t _Columns, typename _Scalar>
 	class matrix;
 
-	template<size_t _Dimentions, typename T>
+	template<size_t _Dimentions, typename _Scalar>
 	class vector;
 }
